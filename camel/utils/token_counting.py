@@ -172,7 +172,31 @@ class OpenAITokenCounter(BaseTokenCounter):
         for message in messages:
             num_tokens += self.tokens_per_message
             for key, value in message.items():
-                if not isinstance(value, list):
+                if key == "tool_calls":
+                    # Handle tool_calls specifically
+                    for tool_call in value:
+                        # Count tokens for tool_call type
+                        if "type" in tool_call:
+                            num_tokens += len(
+                                self.encoding.encode(str(tool_call["type"]), disallowed_special=())
+                            )
+                        # Count tokens for function name
+                        if "function" in tool_call:
+                            if "name" in tool_call["function"]:
+                                num_tokens += len(
+                                    self.encoding.encode(str(tool_call["function"]["name"]), disallowed_special=())
+                                )
+                            # Count tokens for function arguments
+                            if "arguments" in tool_call["function"]:
+                                num_tokens += len(
+                                    self.encoding.encode(str(tool_call["function"]["arguments"]), disallowed_special=())
+                                )
+                        # Count tokens for id
+                        if "id" in tool_call:
+                            num_tokens += len(
+                                self.encoding.encode(str(tool_call["id"]), disallowed_special=())
+                            )
+                elif not isinstance(value, list):
                     num_tokens += len(
                         self.encoding.encode(str(value), disallowed_special=())
                     )
