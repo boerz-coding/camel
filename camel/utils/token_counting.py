@@ -196,6 +196,11 @@ class OpenAITokenCounter(BaseTokenCounter):
                             num_tokens += len(
                                 self.encoding.encode(str(tool_call["id"]), disallowed_special=())
                             )
+                elif key == "tool_call_id":
+                    # Handle tool_call_id for tool response messages
+                    num_tokens += len(
+                        self.encoding.encode(str(value), disallowed_special=())
+                    )
                 elif not isinstance(value, list):
                     num_tokens += len(
                         self.encoding.encode(str(value), disallowed_special=())
